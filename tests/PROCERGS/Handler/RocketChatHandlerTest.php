@@ -66,6 +66,50 @@ class RocketChatHandlerTest extends \PHPUnit_Framework_TestCase
         $this->assertObjectHasAttribute('text', $requestData);
     }
 
+    public function testAttachments()
+    {
+        $requests = [];
+        $client = $this->getClient($requests);
+
+        // prepare context
+        $var1 = ['one' => 1, 'two' => 2];
+        $var2 = new \stdClass();
+        $var2->one = 'one';
+        $context = ['var1' => $var1, 'var2' => $var2];
+        $record = $this->getRecord(Logger::ERROR, 'test', $context);
+
+        $handler = new RocketChatHandler('https://my.url', 'channel', 'user', $client, Logger::DEBUG, false);
+        $handler->handle($record);
+
+        /** @var Request $request */
+        $request = reset($requests)['request'];
+        $body = $request->getBody();
+        $requestData = json_decode($body, true);
+
+        $this->assertNotEmpty($requests);
+        $this->assertArrayHasKey('attachments', $requestData);
+        $this->assertCount(2, $requestData['attachments']);
+    }
+
+    public function testWithNoAttachments()
+    {
+        $requests = [];
+        $client = $this->getClient($requests);
+
+        $record = $this->getRecord(Logger::ERROR);
+
+        $handler = new RocketChatHandler('https://my.url', 'channel', 'user', $client, Logger::DEBUG, false);
+        $handler->handle($record);
+
+        /** @var Request $request */
+        $request = reset($requests)['request'];
+        $body = $request->getBody();
+        $requestData = json_decode($body, true);
+
+        $this->assertNotEmpty($requests);
+        $this->assertArrayNotHasKey('attachments', $requestData);
+    }
+
     private function getClient(&$container)
     {
         $history = Middleware::history($container);

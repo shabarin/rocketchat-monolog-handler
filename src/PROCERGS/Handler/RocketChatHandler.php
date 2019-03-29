@@ -12,9 +12,9 @@
 namespace PROCERGS\Handler;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Logger;
-use GuzzleHttp\ClientInterface;
 
 /**
  * RocketChatHandler uses cURL to trigger Rocket.Chat WebHooks
@@ -34,6 +34,9 @@ class RocketChatHandler extends AbstractProcessingHandler
 
     /** @var string */
     private $webHookUrl;
+
+    /** @var int Maximum string length when adding object dumps as attachment */
+    private $maxDumpLength = 4000;
 
     /**
      * @param string $channel The name of the channel where the logs should be posted
@@ -73,13 +76,38 @@ class RocketChatHandler extends AbstractProcessingHandler
             $record['channel'], $record['level_name'], $record['message']
         );
 
+        $attachments = array_values(
+            array_map(
+                function ($key, $value) {
+                    return [
+                        'title' => $key,
+                        'text' => substr(print_r($value, true), 0, $this->maxDumpLength),
+                    ];
+                },
+                array_keys($record['context']),
+                $record['context']
+            )
+        );
+
         $postData = array_filter([
             'username' => $this->username,
             'icon_emoji' => '',
             'channel' => $this->channel,
             'text' => $formattedMessage,
+            'attachments' => $attachments,
         ]);
 
         $this->client->post($this->webHookUrl, ['json' => $postData]);
     }
+
+    /**
+     * Sets the maximum length of object dump
+     * @param int $maxDumpLength
+     * @return void
+     */
+    public function setMaxDumpLength(int $maxDumpLength)
+    {
+        $this->maxDumpLength = $maxDumpLength;
+    }
+
 }

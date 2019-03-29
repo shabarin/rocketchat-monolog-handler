@@ -13,5 +13,5 @@ $username = 'Some.User';
 $logger = new Logger('my_logger');
 $logger->pushHandler(new RocketChatHandler($url, $channel, $username));
 
-$logger->crit('Something');
+$logger->crit('Something', ['myVar' => $myVar]);
 ```
