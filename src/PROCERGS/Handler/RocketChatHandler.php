@@ -81,7 +81,7 @@ class RocketChatHandler extends AbstractProcessingHandler
                 function ($key, $value) {
                     return [
                         'title' => $key,
-                        'text' => substr(print_r($value, true), 0, $this->maxDumpLength),
+                        'text' => substr(json_encode($value, JSON_UNESCAPED_UNICODE), 0, $this->maxDumpLength),
                     ];
                 },
                 array_keys($record['context']),

@@ -3,7 +3,8 @@
     "type": "library",
     "license": "GPLv3",
     "require": {
-        "php": ">=5.4",
+        "php": ">=7.0",
+        "ext-json": "*",
         "monolog/monolog": "^1",
         "guzzlehttp/guzzle": "^6"
     },
@@ -22,5 +23,6 @@
             "parallel-lint . --exclude vendor",
             "phpunit"
         ]
-    }
+    },
+    "description": "Rocket.Chat Monolog handler"
 }
