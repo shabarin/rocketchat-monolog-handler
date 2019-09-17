@@ -80,7 +80,7 @@ class RocketChatHandler extends AbstractProcessingHandler
             array_map(
                 function ($key, $value) {
                     return [
-                        'title' => $key,
+                        'title' => (string)$key,
                         'text' => substr(json_encode($value, JSON_UNESCAPED_UNICODE), 0, $this->maxDumpLength),
                     ];
                 },
